@@ -1,8 +1,7 @@
 import User from '../../models/User';
-import { signToken, AuthenticationError } from '../../services/auth'
-import Thought from '../../models/Thought';
+import { signToken } from '../../services/auth';
+import { AuthenticationError } from 'apollo-server-express';
 
-// Define types for the arguments
 interface AddUserArgs {
   input: {
     username: string;
@@ -20,54 +19,47 @@ interface UserArgs {
   username: string;
 }
 
-interface ThoughtArgs {
-  thoughtId: string;
-}
-
-interface AddThoughtArgs {
-  input: {
-    thoughtText: string;
-    thoughtAuthor: string;
+interface SaveBookArgs {
+  bookData: {
+    bookId: string;
+    authors: string[];
+    description?: string;
+    title: string;
+    image?: string;
+    link?: string;
   };
 }
 
-interface AddCommentArgs {
-  thoughtId: string;
-  commentText: string;
-}
-
-interface RemoveCommentArgs {
-  thoughtId: string;
-  commentId: string;
+interface DeleteBookArgs {
+  bookId: string;
 }
 
 const resolvers = {
   Query: {
-    users: async () => {
-      return await User.find().populate('thoughts');
-    },
-    user: async (_parent: any, { username }: UserArgs) => {
-      return await User.findOne({ username }).populate('thoughts');
-    },
-    thoughts: async () => {
-      return await Thought.find().sort({ createdAt: -1 });
-    },
-    thought: async (_parent: any, { thoughtId }: ThoughtArgs) => {
-      return await Thought.findOne({ _id: thoughtId });
-    },
-    me: async (_parent: any, _args: unknown, context: any) => {
+    // Get the currently authenticated user.
+    me: async (_parent: any, _args: any, context: any) => {
       if (context.user) {
-        return await User.findOne({ _id: context.user._id }).populate('thoughts');
+        return await User.findOne({ _id: context.user._id });
       }
       throw new AuthenticationError('Could not authenticate user.');
     },
+    // Get a user by username.
+    user: async (_parent: any, { username }: UserArgs) => {
+      return await User.findOne({ username });
+    },
+    // Optionally, get all users.
+    users: async () => {
+      return await User.find();
+    },
   },
   Mutation: {
+    // Create a new user and sign a token.
     addUser: async (_parent: any, { input }: AddUserArgs) => {
       const user = await User.create({ ...input });
       const token = signToken(user.username, user.email, user._id);
       return { token, user };
     },
+    // Log in an existing user.
     login: async (_parent: any, { email, password }: LoginUserArgs) => {
       const user = await User.findOne({ email });
       if (!user) {
@@ -80,67 +72,45 @@ const resolvers = {
       const token = signToken(user.username, user.email, user._id);
       return { token, user };
     },
-    addThought: async (_parent: any, { input }: AddThoughtArgs, context: any) => {
-      if (context.user) {
-        const thought = await Thought.create({ ...input });
-        await User.findOneAndUpdate(
+    // Save a book to the authenticated user's savedBooks array.
+    saveBook: async (_parent: any, { bookData }: SaveBookArgs, context: any) => {
+      if (!context.user) {
+        throw new AuthenticationError('You must be logged in to save a book.');
+      }
+      try {
+        const updatedUser = await User.findOneAndUpdate(
           { _id: context.user._id },
-          { $addToSet: { thoughts: thought._id } }
+          { $addToSet: { savedBooks: bookData } },
+          { new: true, runValidators: true }
         );
-        return thought;
-      }
-      throw new AuthenticationError('You need to be logged in!');
-    },
-    addComment: async (_parent: any, { thoughtId, commentText }: AddCommentArgs, context: any) => {
-      if (context.user) {
-        return await Thought.findOneAndUpdate(
-          { _id: thoughtId },
-          {
-            $addToSet: {
-              comments: { commentText, commentAuthor: context.user.username },
-            },
-          },
-          {
-            new: true,
-            runValidators: true,
-          }
-        );
-      }
-      throw new AuthenticationError('You need to be logged in!');
-    },
-    removeThought: async (_parent: any, { thoughtId }: ThoughtArgs, context: any) => {
-      if (context.user) {
-        const thought = await Thought.findOneAndDelete({
-          _id: thoughtId,
-          thoughtAuthor: context.user.username,
-        });
-        if (!thought) {
-          throw new AuthenticationError('Unable to delete thought.');
+        if (!updatedUser) {
+          throw new Error("Book not saved.");
         }
-        await User.findOneAndUpdate(
-          { _id: context.user._id },
-          { $pull: { thoughts: thought._id } }
-        );
-        return thought;
+        return updatedUser;
+      } catch (err) {
+        console.error(err);
+        throw new Error('An error occurred while saving the book.');
       }
-      throw new AuthenticationError('You need to be logged in!');
     },
-    removeComment: async (_parent: any, { thoughtId, commentId }: RemoveCommentArgs, context: any) => {
-      if (context.user) {
-        return await Thought.findOneAndUpdate(
-          { _id: thoughtId },
-          {
-            $pull: {
-              comments: {
-                _id: commentId,
-                commentAuthor: context.user.username,
-              },
-            },
-          },
-          { new: true }
-        );
+    // Remove a book from the authenticated user's savedBooks array.
+    deleteBook: async (_parent: any, { bookId }: DeleteBookArgs, context: any) => {
+      if (!context.user) {
+        throw new AuthenticationError('You must be logged in to delete a book.');
       }
-      throw new AuthenticationError('You need to be logged in!');
+      try {
+        const updatedUser = await User.findOneAndUpdate(
+          { _id: context.user._id },
+          { $pull: { savedBooks: { bookId } } },
+          { new: true, runValidators: true }
+        );
+        if (!updatedUser) {
+          throw new Error("Book not deleted.");
+        }
+        return updatedUser;
+      } catch (err) {
+        console.error(err);
+        throw new Error('An error occurred while deleting the book.');
+      }
     },
   },
 };
