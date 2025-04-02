@@ -1,58 +1,63 @@
 const typeDefs = `
+  # The User type represents a user in your system.
   type User {
-    _id: ID
-    username: String
-    email: String
-    password: String
-    thoughts: [Thought]!
+    _id: ID!
+    username: String!
+    email: String!
+    # For security, you might not expose the password in queries.
+    savedBooks: [Book]!
   }
 
-  type Thought {
-    _id: ID
-    thoughtText: String
-    thoughtAuthor: String
-    createdAt: String
-    comments: [Comment]!
+  # The Book type describes a saved book.
+  type Book {
+    bookId: String!
+    authors: [String!]!
+    description: String
+    title: String!
+    image: String
+    link: String
   }
 
-  type Comment {
-    _id: ID
-    commentText: String
-    createdAt: String
-  }
-
-  input ThoughtInput {
-    thoughtText: String!
-    thoughtAuthor: String!
-  }
-
+  # Input type for registering a new user.
   input UserInput {
     username: String!
     email: String!
     password: String!
   }
-  
+
+  # Input type for saving a book.
+  input BookInput {
+    bookId: String!
+    authors: [String!]!
+    description: String
+    title: String!
+    image: String
+    link: String
+  }
+
+  # Auth type that returns a token along with the user data.
   type Auth {
     token: ID!
     user: User
   }
 
+  # Queries for retrieving user data.
   type Query {
-    users: [User]
-    user(username: String!): User
-    thoughts: [Thought]!
-    thought(thoughtId: ID!): Thought
+    # Get the currently authenticated user.
     me: User
+    # Get a user by ID or username.
+    user(id: ID, username: String): User
   }
 
+  # Mutations to handle user and book operations.
   type Mutation {
+    # Register a new user.
     addUser(input: UserInput!): Auth
+    # Log in an existing user.
     login(email: String!, password: String!): Auth
-    addThought(input: ThoughtInput!): Thought
-    addComment(thoughtId: ID!, commentText: String!): Thought
-    removeThought(thoughtId: ID!): Thought
-    removeComment(thoughtId: ID!, commentId: ID!): Thought
+    # Save a book to the user's savedBooks list.
+    saveBook(bookData: BookInput!): User
+    # Remove a book from the user's savedBooks list.
+    deleteBook(bookId: String!): User
   }
 `;
-
-export default typeDefs;

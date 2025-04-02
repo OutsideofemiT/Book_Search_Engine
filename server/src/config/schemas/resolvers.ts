@@ -1,5 +1,6 @@
-import { User, Thought } from '../../models/index';
+import User from '../../models/User';
 import { signToken, AuthenticationError } from '../../services/auth'
+import Thought from '../../models/Thought';
 
 // Define types for the arguments
 interface AddUserArgs {
