@@ -9,7 +9,6 @@ import { dirname } from 'path';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-// END - add these lines to make __dirname work
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -17,11 +16,17 @@ const PORT = process.env.PORT || 3001;
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// if we're in production, serve client/build as static assets
+// if we're in production, serve client/dist as static assets
 if (process.env.NODE_ENV === 'production') {
-  console.log(__dirname);
-  app.use(express.static(path.join(__dirname, '../../client/dist')));
+  // Serve static assets from the client build folder
+  app.use(express.static(path.join(__dirname, '../client/build')));
+
+  // Fallback: serve index.html for any unknown routes
+  app.get('*', (_, res) => {
+    res.sendFile(path.join(__dirname, '../../client/build', 'index.html'));
+  });
 }
+
 
 app.use(routes);
 
