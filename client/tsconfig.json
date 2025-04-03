@@ -23,3 +23,12 @@
   "include": ["src"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
+{
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": "./src",       // Only compile files from client/src
+    "outDir": "./dist"        // Output files to client/dist
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
+}
