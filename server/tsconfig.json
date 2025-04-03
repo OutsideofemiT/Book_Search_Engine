@@ -1,9 +1,13 @@
 {
-  "extends": "../tsconfig.base.json",
+  "extends": "../tsconfig.json",
   "compilerOptions": {
-    "rootDir": "./src",       // Only compile files from server/src
-    "outDir": "./dist"        // Output files to server/dist
+    /* Modules */
+    "rootDir": "src" /* Specify the root folder within your source files. */,
+
+    /* Emit */
+    "outDir": "dist" /* Specify an output folder for all emitted files. */
+    // "noEmitOnError": true /* Disable emitting files if any type checking errors are reported. */
   },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist"]
+  "include": ["src"],
+  "typeRoots": ["./node_modules/@types", "./src/types"]
 }
