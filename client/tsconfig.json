@@ -18,17 +18,12 @@
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true
-  },
-  "include": ["src"],
-  "references": [{ "path": "./tsconfig.node.json" }]
-}
-{
-  "extends": "../tsconfig.base.json",
-  "compilerOptions": {
+    "noFallthroughCasesInSwitch": true,
     "rootDir": "./src",       // Only compile files from client/src
     "outDir": "./dist"        // Output files to client/dist
   },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist"]
+  "include": ["src", "src/**/*"],
+  "exclude": ["node_modules", "dist"],
+  "references": [{ "path": "./tsconfig.node.json" }],
+  "extends": "../tsconfig.base.json"
 }

@@ -87,16 +87,17 @@ const SearchBooks = () => {
 
     try {
       // Execute the SAVE_BOOK mutation with the book data and token in context headers
-      const { data } = await saveBookMutation({
-        variables: { bookData: bookToSave },
-        context: {
-          headers: {
-            authorization: `Bearer ${token}`
-          }
+    const { data } = await saveBookMutation({
+      variables: { bookData: bookToSave },
+      context: {
+        headers: {
+          authorization: `Bearer ${token}`
         }
-      });
+      }
+    });
 
-      // Optionally, you can use data.saveBook.bookId from the response if needed.
+    // Access the saved book ID from the mutation response
+    data.saveBook.bookId;
       // Keep the logic for saving the book's ID to state.
       setSavedBookIds([...savedBookIds, bookToSave.bookId]);
 
