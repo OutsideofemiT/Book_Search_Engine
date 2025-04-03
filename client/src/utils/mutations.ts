@@ -3,7 +3,17 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import User from '../models/User'; // Replace with your actual user model
 // Import your type definitions for the arguments; ensure these types are defined correctly.
-import { LoginArgs, AddUserArgs } from '../../../server/src/controllers/user-controller';
+// Define LoginArgs and AddUserArgs locally or import them from a shared location within the rootDir
+interface LoginArgs {
+  email: string;
+  password: string;
+}
+
+interface AddUserArgs {
+  username: string;
+  email: string;
+  password: string;
+}
 // Import the BookInput type (adjust the path if needed)
 import { BookInput } from '../models/Book';
 

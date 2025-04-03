@@ -1,35 +1,71 @@
-import express from 'express';
+import express, { Application } from 'express';
 import path from 'node:path';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+// MongoDB or other DB connection
 import db from './config/connection.js';
 import routes from './routes/index.js';
 
-// add these lines to make __dirname work
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
+// Apollo Server v4 and the Express integration
+import { ApolloServer } from '@apollo/server';
+import { expressMiddleware, ExpressContextFunctionArgument } from '@apollo/server/express4';
+
+// Your GraphQL typeDefs and resolvers
+import typeDefs from './config/schemas/typeDefs.js';
+import resolvers from './config/schemas/resolvers.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-const app = express();
+const app: Application = express();
 const PORT = process.env.PORT || 3001;
 
+// Express middleware
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// if we're in production, serve client/dist as static assets
-if (process.env.NODE_ENV === 'production') {
-  // Serve static assets from the client build folder
-  app.use(express.static(path.join(__dirname, '../client/build')));
+// Define your context type
+type MyContext = {
+  token: string | undefined;
+};
 
-  // Fallback: serve index.html for any unknown routes
+const apolloServer = new ApolloServer<MyContext>({
+  typeDefs,
+  resolvers,
+});
+
+// Start Apollo Server (using top-level await in ESM)
+await apolloServer.start();
+
+// Use expressMiddleware to integrate Apollo Server with Express.
+// Note: We explicitly check if req.headers.authorization is an array.
+app.use(
+  '/graphql',
+  expressMiddleware<MyContext>(apolloServer, {
+    context: async ({ req }: ExpressContextFunctionArgument) => ({
+      token:
+        Array.isArray(req.headers.authorization)
+          ? req.headers.authorization[0]
+          : req.headers.authorization,
+    }),
+  })
+);
+
+// Use your other routes
+app.use(routes);
+
+// In production, serve static files from the client build folder
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, '../../client/build')));
   app.get('*', (_, res) => {
     res.sendFile(path.join(__dirname, '../../client/build', 'index.html'));
   });
 }
 
-
-app.use(routes);
-
+// Start the server after DB is open
 db.once('open', () => {
-  app.listen(PORT, () => console.log(`🌍 Now listening on localhost:${PORT}`));
+  app.listen(PORT, () => {
+    console.log(`🌍 Now listening on localhost:${PORT}`);
+  });
 });
