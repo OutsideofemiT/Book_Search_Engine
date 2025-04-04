@@ -1,79 +1,75 @@
-import User from '../../models/User.js';
-import { signToken } from '../../services/auth.js';
-import { AuthenticationError } from 'apollo-server-express';
+import User from '../../models/User.js'; // Correct path to User model
+import { signToken } from '../../services/auth.js'; // Correct path to auth service
+import { AuthenticationError } from 'apollo-server-express'; // No change needed
+import jwt from 'jsonwebtoken'; // No change needed
+import bcrypt from 'bcryptjs'; // No change needed
 
-interface AddUserArgs {
-  input: {
-    username: string;
-    email: string;
-    password: string;
-  };
-}
+// Ensure the BookInput type is correctly imported from the Book model
+import { BookInput } from '../../models/Book.js'; // Correct path to Book model
 
-interface LoginUserArgs {
+interface LoginArgs {
   email: string;
   password: string;
 }
 
-interface UserArgs {
+interface AddUserArgs {
+  username: string;
+  email: string;
+  password: string;
+}
+
+interface AddUserArgs {
   username: string;
 }
 
 interface SaveBookArgs {
-  bookData: {
-    bookId: string;
-    authors: string[];
-    description?: string;
-    title: string;
-    image?: string;
-    link?: string;
-  };
+  bookData: BookInput;
 }
 
 interface DeleteBookArgs {
   bookId: string;
 }
 
-const resolvers = {
-  Query: {
-    // Get the currently authenticated user.
-    me: async (_parent: any, _args: any, context: any) => {
-      if (context.user) {
-        return await User.findOne({ _id: context.user._id });
-      }
-      throw new AuthenticationError('Could not authenticate user.');
-    },
-    // Get a user by username.
-    user: async (_parent: any, { username }: UserArgs) => {
-      return await User.findOne({ username });
-    },
-    // Optionally, get all users.
-    users: async () => {
-      return await User.find();
-    },
-  },
+const secret = process.env.JWT_SECRET || 'yoursecretkey';
+
+export const resolvers = {
   Mutation: {
-    // Create a new user and sign a token.
-    addUser: async (_parent: any, { input }: AddUserArgs) => {
-      const user = await User.create({ ...input });
-      const token = signToken(user.username, user.email, user._id);
-      return { token, user };
-    },
-    // Log in an existing user.
-    login: async (_parent: any, { email, password }: LoginUserArgs) => {
+    // Rename loginUser to "login" if your schema uses that name.
+    login: async (_: unknown, { email, password }: LoginArgs) => {
+      // Query by email only:
       const user = await User.findOne({ email });
       if (!user) {
-        throw new AuthenticationError('Could not authenticate user.');
+        throw new AuthenticationError("No user found with this email.");
       }
-      const correctPw = await user.isCorrectPassword(password);
-      if (!correctPw) {
-        throw new AuthenticationError('Could not authenticate user.');
+
+      // Compare the provided password with the stored hashed password
+      const isValid = await bcrypt.compare(password, user.password);
+      if (!isValid) {
+        throw new AuthenticationError("Incorrect password.");
       }
-      const token = signToken(user.username, user.email, user._id);
+
+      const token = jwt.sign({ id: user._id, username: user.username }, secret, { expiresIn: '2h' });
       return { token, user };
     },
-    // Save a book to the authenticated user's savedBooks array.
-    saveBook: async (_parent: any, { bookData }: SaveBookArgs, context: any) => {
+
+    // Rename addUser remains as is if schema is "addUser"
+    addUser: async (_: unknown, { username, email, password }: AddUserArgs) => {
+      // Create the user (ensure password is hashed via a pre-save hook or here)
+      const user = await User.create({ username, email, password });
+      if (!user) {
+        throw new Error("User creation failed.");
+      }
+
+      const token = jwt.sign({ id: user._id, username: user.username }, secret, { expiresIn: '2h' });
+      return { token, user };
+    },
+
+    // Use "saveBook" as defined in your schema
+    saveBook: async (
+      _: unknown,
+      { bookData }: SaveBookArgs,
+      context: any
+    ) => {
       if (!context.user) {
         throw new AuthenticationError('You must be logged in to save a book.');
       }
@@ -83,6 +79,7 @@ const resolvers = {
           { $addToSet: { savedBooks: bookData } },
           { new: true, runValidators: true }
         );
+
         if (!updatedUser) {
           throw new Error("Book not saved.");
         }
@@ -92,8 +89,13 @@ const resolvers = {
         throw new Error('An error occurred while saving the book.');
       }
     },
-    // Remove a book from the authenticated user's savedBooks array.
-    deleteBook: async (_parent: any, { bookId }: DeleteBookArgs, context: any) => {
+
+    // Rename deleteBook to "removeBook" if your schema requires that.
+    removeBook: async (
+      _: unknown,
+      { bookId }: DeleteBookArgs,
+      context: any
+    ) => {
       if (!context.user) {
         throw new AuthenticationError('You must be logged in to delete a book.');
       }
@@ -103,6 +105,7 @@ const resolvers = {
           { $pull: { savedBooks: { bookId } } },
           { new: true, runValidators: true }
         );
+
         if (!updatedUser) {
           throw new Error("Book not deleted.");
         }
@@ -114,5 +117,3 @@ const resolvers = {
     },
   },
 };
-
-export default resolvers;

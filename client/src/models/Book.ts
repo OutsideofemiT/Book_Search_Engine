@@ -6,3 +6,11 @@ export interface Book {
   link: string;
   title: string;
 }
+export interface BookInput {
+  bookId: string;
+  authors: string[];
+  description?: string;
+  title: string;
+  image?: string;
+  link?: string;
+}
