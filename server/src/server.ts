@@ -17,6 +17,7 @@ import { expressMiddleware, ExpressContextFunctionArgument } from '@apollo/serve
 import typeDefs from './config/schemas/typeDefs.js';
 import resolvers from './config/schemas/resolvers.js';
 
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 

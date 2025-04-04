@@ -1,11 +1,12 @@
 import User from '../../models/User.js'; // Correct path to User model
-import { signToken } from '../../services/auth.js'; // Correct path to auth service
+//import { signToken } from '../../services/auth.js'; // Correct path to auth service
 import { AuthenticationError } from 'apollo-server-express'; // No change needed
 import jwt from 'jsonwebtoken'; // No change needed
 import bcrypt from 'bcryptjs'; // No change needed
 
 // Ensure the BookInput type is correctly imported from the Book model
-import { BookInput } from '../../models/Book.js'; // Correct path to Book model
+import { Book, BookInput } from './../../../../shared/types.js';
+ // Ensure BookInput is exported as a type
 
 interface LoginArgs {
   email: string;
@@ -117,3 +118,4 @@ export const resolvers = {
     },
   },
 };
+export default resolvers;
