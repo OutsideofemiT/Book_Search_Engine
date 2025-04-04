@@ -5,7 +5,8 @@ import jwt from 'jsonwebtoken'; // No change needed
 import bcrypt from 'bcryptjs'; // No change needed
 
 // Ensure the BookInput type is correctly imported from the Book model
-import { Book, BookInput } from './../../../../shared/types.js';
+import { BookInput } from '../../models/Book.js';
+
  // Ensure BookInput is exported as a type
 
 interface LoginArgs {

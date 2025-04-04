@@ -1,3 +1,4 @@
-import { Book, BookInput } from '../shared/types';
+import { Book, BookInput } from 'src/shared/types';
+
 
 export type { Book, BookInput };
