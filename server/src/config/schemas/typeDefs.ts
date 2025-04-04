@@ -41,22 +41,15 @@ const typeDefs = `
     user: User
   }
 
-  # Queries for retrieving user data.
+  # Single Query type combining all queries.
   type Query {
     # Get the currently authenticated user.
     me: User
     # Get a user by ID or username.
     user(id: ID, username: String): User
+    # Get all users.
+    users: [User]
   }
-    
-  type Query {
-  # Get the currently authenticated user.
-  me: User
-  # Get a user by ID or username.
-  user(id: ID, username: String): User
-  # Get all users.
-  users: [User]
-}
 
   # Mutations to handle user and book operations.
   type Mutation {
@@ -71,3 +64,4 @@ const typeDefs = `
   }
 `;
 export default typeDefs;
+
