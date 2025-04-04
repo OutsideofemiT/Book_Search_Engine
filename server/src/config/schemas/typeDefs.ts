@@ -48,6 +48,15 @@ const typeDefs = `
     # Get a user by ID or username.
     user(id: ID, username: String): User
   }
+    
+  type Query {
+  # Get the currently authenticated user.
+  me: User
+  # Get a user by ID or username.
+  user(id: ID, username: String): User
+  # Get all users.
+  users: [User]
+}
 
   # Mutations to handle user and book operations.
   type Mutation {
