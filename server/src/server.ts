@@ -2,7 +2,7 @@ import express, { Application } from 'express';
 import path from 'node:path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
-import { RequestHandler } from 'express';
+import type { RequestHandler } from 'express';
 
 
 // MongoDB or other DB connection
@@ -46,13 +46,13 @@ app.use(
   '/graphql',
   expressMiddleware<MyContext>(apolloServer, {
     context: async ({ req }: ExpressContextFunctionArgument) => ({
-      token:
-        Array.isArray(req.headers.authorization)
-          ? req.headers.authorization[0]
-          : req.headers.authorization,
+      token: Array.isArray(req.headers.authorization)
+        ? req.headers.authorization[0]
+        : req.headers.authorization,
     }),
-  })
+  }) as RequestHandler
 );
+
 
 // Use your other routes
 app.use(routes);
