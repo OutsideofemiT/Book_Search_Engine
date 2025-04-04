@@ -2,6 +2,8 @@ import express, { Application } from 'express';
 import path from 'node:path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
+import { RequestHandler } from 'express';
+
 
 // MongoDB or other DB connection
 import db from './config/connection.js';
