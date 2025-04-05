@@ -62,6 +62,6 @@ const typeDefs = `
     # Remove a book from the user's savedBooks list.
     deleteBook(bookId: String!): User
   }
-`;
+;
 export default typeDefs;
 

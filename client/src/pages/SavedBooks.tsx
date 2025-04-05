@@ -4,40 +4,32 @@ import { useQuery, useMutation } from '@apollo/client';
 import Auth from '../utils/auth';
 import { removeBookId } from '../utils/localStorage';
 import type { User } from '../models/User';
-import { GET_ME } from '../utils/queries';
-import { REMOVE_BOOK } from '../utils/mutations';
+import { GET_ME } from '../utils/queries';       // Adjust the path if needed
+import { REMOVE_BOOK } from '../utils/mutations'; // Adjust the path if needed
 
 const SavedBooks = () => {
-  // Use the useQuery hook to fetch the current user's data
+  // Use useQuery to get user data
   const { loading, error, data, refetch } = useQuery(GET_ME);
-  // The query returns an object with a `me` property; we'll call that userData.
   const userData: User | undefined = data?.me;
 
-  // Set up the mutation hook for removing a book.
+  // Use useMutation for the REMOVE_BOOK mutation
   const [removeBookMutation] = useMutation(REMOVE_BOOK, {
-    // Optionally refetch GET_ME after mutation to update the cache:
     refetchQueries: [{ query: GET_ME }],
     onError: (err) => console.error(err),
   });
 
-  // Handler to delete a book by its bookId.
   const handleDeleteBook = async (bookId: string) => {
+    if (!Auth.loggedIn()) return false;
     try {
-      if (!Auth.loggedIn()) {
-        return false;
-      }
-      // Execute the REMOVE_BOOK mutation.
       await removeBookMutation({ variables: { bookId } });
-      // Optionally, if you're not using refetchQueries, you can call refetch() here:
+      // Optionally, if not using refetchQueries, call refetch():
       // await refetch();
-      // Remove the bookId from localStorage.
       removeBookId(bookId);
     } catch (err) {
       console.error(err);
     }
   };
 
-  // Display loading or error states.
   if (loading) return <h2>LOADING...</h2>;
   if (error) return <h2>Error: {error.message}</h2>;
   if (!userData) return <h2>No user data found</h2>;
