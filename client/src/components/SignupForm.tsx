@@ -12,43 +12,36 @@ interface FormData {
   password: string;
 }
 
-const SignupForm = ({}: { handleModalClose: () => void }) => {
-  // Set initial form state
+const SignupForm = ({ handleModalClose }: { handleModalClose: () => void }) => {
   const [userFormData, setUserFormData] = useState<FormData>({
     username: '',
     email: '',
     password: '',
   });
-  // State for alert
   const [showAlert, setShowAlert] = useState(false);
 
-  // Set up the mutation hook for ADD_USER
   const [addUser] = useMutation(ADD_USER);
 
-  // Handle input changes
   const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
     setUserFormData({ ...userFormData, [name]: value });
   };
 
-  // Handle form submission
   const handleFormSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     try {
-      // Execute the ADD_USER mutation and pass the form data as variables
       const { data } = await addUser({
         variables: { input: userFormData },
       });
-
-      // If successful, extract the token and log in the user
+      // Log in the user and close the modal
       Auth.login(data.addUser.token);
+      handleModalClose();
     } catch (err) {
       console.error(err);
       setShowAlert(true);
     }
 
-    // Reset the form
     setUserFormData({
       username: '',
       email: '',
@@ -59,15 +52,9 @@ const SignupForm = ({}: { handleModalClose: () => void }) => {
   return (
     <>
       <Form noValidate onSubmit={handleFormSubmit}>
-        <Alert
-          dismissible
-          onClose={() => setShowAlert(false)}
-          show={showAlert}
-          variant="danger"
-        >
+        <Alert dismissible onClose={() => setShowAlert(false)} show={showAlert} variant="danger">
           Something went wrong with your signup!
         </Alert>
-
         <Form.Group className="mb-3">
           <Form.Label htmlFor="username">Username</Form.Label>
           <Form.Control
@@ -78,11 +65,8 @@ const SignupForm = ({}: { handleModalClose: () => void }) => {
             onChange={handleInputChange}
             required
           />
-          <Form.Control.Feedback type="invalid">
-            Username is required!
-          </Form.Control.Feedback>
+          <Form.Control.Feedback type="invalid">Username is required!</Form.Control.Feedback>
         </Form.Group>
-
         <Form.Group className="mb-3">
           <Form.Label htmlFor="email">Email</Form.Label>
           <Form.Control
@@ -93,11 +77,8 @@ const SignupForm = ({}: { handleModalClose: () => void }) => {
             onChange={handleInputChange}
             required
           />
-          <Form.Control.Feedback type="invalid">
-            Email is required!
-          </Form.Control.Feedback>
+          <Form.Control.Feedback type="invalid">Email is required!</Form.Control.Feedback>
         </Form.Group>
-
         <Form.Group className="mb-3">
           <Form.Label htmlFor="password">Password</Form.Label>
           <Form.Control
@@ -108,15 +89,10 @@ const SignupForm = ({}: { handleModalClose: () => void }) => {
             onChange={handleInputChange}
             required
           />
-          <Form.Control.Feedback type="invalid">
-            Password is required!
-          </Form.Control.Feedback>
+          <Form.Control.Feedback type="invalid">Password is required!</Form.Control.Feedback>
         </Form.Group>
-
         <Button
-          disabled={
-            !(userFormData.username && userFormData.email && userFormData.password)
-          }
+          disabled={!(userFormData.username && userFormData.email && userFormData.password)}
           type="submit"
           variant="success"
         >

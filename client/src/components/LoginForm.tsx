@@ -12,8 +12,8 @@ interface LoginFormData {
   password: string;
 }
 
-const LoginForm = ({}: { handleModalClose: () => void }) => {
-  // Set initial form state for login; note we only need email and password.
+const LoginForm = ({ handleModalClose }: { handleModalClose: () => void }) => {
+  // Set initial form state for login
   const [userFormData, setUserFormData] = useState<LoginFormData>({
     email: '',
     password: '',
@@ -21,7 +21,6 @@ const LoginForm = ({}: { handleModalClose: () => void }) => {
   const [validated] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
 
-  // Set up the LOGIN_USER mutation
   const [loginUser] = useMutation(LOGIN_USER);
 
   const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -38,19 +37,17 @@ const LoginForm = ({}: { handleModalClose: () => void }) => {
     }
 
     try {
-      // Execute the LOGIN_USER mutation with email and password
       const { data } = await loginUser({
         variables: { email: userFormData.email, password: userFormData.password },
       });
-
-      // On success, log in the user with the token from the mutation response
+      // Log in the user and close the modal
       Auth.login(data.login.token);
+      handleModalClose();
     } catch (err) {
       console.error(err);
       setShowAlert(true);
     }
 
-    // Reset the form state
     setUserFormData({
       email: '',
       password: '',
@@ -63,7 +60,6 @@ const LoginForm = ({}: { handleModalClose: () => void }) => {
         <Alert dismissible onClose={() => setShowAlert(false)} show={showAlert} variant="danger">
           Something went wrong with your login credentials!
         </Alert>
-
         <Form.Group className="mb-3">
           <Form.Label htmlFor="email">Email</Form.Label>
           <Form.Control
@@ -74,11 +70,8 @@ const LoginForm = ({}: { handleModalClose: () => void }) => {
             value={userFormData.email}
             required
           />
-          <Form.Control.Feedback type="invalid">
-            Email is required!
-          </Form.Control.Feedback>
+          <Form.Control.Feedback type="invalid">Email is required!</Form.Control.Feedback>
         </Form.Group>
-
         <Form.Group className="mb-3">
           <Form.Label htmlFor="password">Password</Form.Label>
           <Form.Control
@@ -89,16 +82,9 @@ const LoginForm = ({}: { handleModalClose: () => void }) => {
             value={userFormData.password}
             required
           />
-          <Form.Control.Feedback type="invalid">
-            Password is required!
-          </Form.Control.Feedback>
+          <Form.Control.Feedback type="invalid">Password is required!</Form.Control.Feedback>
         </Form.Group>
-
-        <Button
-          disabled={!(userFormData.email && userFormData.password)}
-          type="submit"
-          variant="success"
-        >
+        <Button disabled={!(userFormData.email && userFormData.password)} type="submit" variant="success">
           Submit
         </Button>
       </Form>
@@ -107,3 +93,4 @@ const LoginForm = ({}: { handleModalClose: () => void }) => {
 };
 
 export default LoginForm;
+
