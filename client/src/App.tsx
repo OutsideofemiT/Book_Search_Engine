@@ -3,9 +3,10 @@ import { Outlet } from 'react-router-dom';
 import { ApolloProvider, ApolloClient, InMemoryCache } from '@apollo/client';
 import Navbar from './components/Navbar';
 
-// Create an Apollo Client instance
 const client = new ApolloClient({
-  uri: 'YOUR_GRAPHQL_ENDPOINT', // Replace with your Apollo Server endpoint
+  uri: process.env.REACT_APP_API_URL
+    ? `${process.env.REACT_APP_API_URL}/graphql`
+    : '/graphql',
   cache: new InMemoryCache(),
 });
 
