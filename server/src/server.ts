@@ -68,7 +68,9 @@ if (process.env.NODE_ENV === 'production') {
 
 // Start the server after DB is open
 db.once('open', () => {
+  console.log('⏳ [Server] DB open—starting listener');
   app.listen(PORT, () => {
-    console.log(`🌍 Now listening on localhost:${PORT}`);
+    console.log(`🌍 Now listening on http://localhost:${PORT}`);
   });
 });
+
