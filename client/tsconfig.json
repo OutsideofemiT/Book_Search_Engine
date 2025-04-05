@@ -26,7 +26,7 @@
     "rootDir": "./src",       // Only compile files from client/src
     "outDir": "./dist"        // Output files to client/dist
   },
-  "include": ["src"],
+  "include": ["src", "vite-env.d.ts"],
   "exclude": ["node_modules", "dist"],
   "references": [{ "path": "./tsconfig.node.json" }],
 

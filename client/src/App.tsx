@@ -4,8 +4,8 @@ import { ApolloProvider, ApolloClient, InMemoryCache } from '@apollo/client';
 import Navbar from './components/Navbar';
 
 const client = new ApolloClient({
-  uri: process.env.REACT_APP_API_URL
-    ? `${process.env.REACT_APP_API_URL}/graphql`
+  uri: import.meta.env.VITE_API_URL
+    ? `${import.meta.env.VITE_API_URL}/graphql`
     : '/graphql',
   cache: new InMemoryCache(),
 });
@@ -20,3 +20,4 @@ function App() {
 }
 
 export default App;
+
