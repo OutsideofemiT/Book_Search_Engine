@@ -93,7 +93,7 @@ export const resolvers = {
     },
 
     // Rename deleteBook to "removeBook" if your schema requires that.
-    removeBook: async (
+    deleteBook: async (
       _: unknown,
       { bookId }: DeleteBookArgs,
       context: any

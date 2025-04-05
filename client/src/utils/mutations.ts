@@ -21,8 +21,8 @@ const secret = process.env.JWT_SECRET || 'yoursecretkey';
 
 export const resolvers = {
   Mutation: {
-    loginUser: async (_: unknown, { email, password }: LoginArgs) => {
-      const user = await User.findOne({ email, password});
+    login: async (_: unknown, { email, password }: LoginArgs) => {
+      const user = await User.findOne({ email});
       if (!user) {
         throw new AuthenticationError("No user found with this username or email.");
       }
