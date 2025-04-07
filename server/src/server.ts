@@ -3,18 +3,31 @@ import path from 'node:path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import type { RequestHandler } from 'express';
-import jwt from 'jsonwebtoken'; // ✅ Add JWT for token verification
+import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 dotenv.config();
 
 // MongoDB connection
-import db from './config/connection.js';
-import routes from './routes/index.js';
+import mongoose from 'mongoose';
+
+const mongoURI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/googlebooks';
+console.log('⏳ Connecting to MongoDB at', mongoURI);
+
+mongoose.connect(mongoURI);
+
+mongoose.connection.on('error', (err) => {
+  console.error('❌ MongoDB connection error:', err);
+});
+
+mongoose.connection.once('open', () => {
+  console.log('✅ MongoDB connected successfully');
+});
 
 // Apollo Server v4
 import { ApolloServer } from '@apollo/server';
 import { expressMiddleware, ExpressContextFunctionArgument } from '@apollo/server/express4';
 
+// GraphQL schema
 import typeDefs from './config/schemas/typeDefs.js';
 import resolvers from './config/schemas/resolvers.js';
 
@@ -28,12 +41,11 @@ const PORT = process.env.PORT || 3001;
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// ✅ Context interface
+// Context interface
 type MyContext = {
   user?: any;
 };
 
-// ✅ Apollo Server with JWT verification in context
 const apolloServer = new ApolloServer<MyContext>({
   typeDefs,
   resolvers,
@@ -46,7 +58,7 @@ app.use(
   expressMiddleware<MyContext>(apolloServer, {
     context: async ({ req }: ExpressContextFunctionArgument) => {
       const authHeader = req.headers.authorization || '';
-      const token = authHeader.split(' ').pop(); // Remove "Bearer" if included
+      const token = authHeader.split(' ').pop();
 
       if (!token) return { user: null };
 
@@ -61,9 +73,6 @@ app.use(
   }) as RequestHandler
 );
 
-// Use your other routes
-app.use(routes);
-
 // Static assets in production
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname, '../../client/build')));
@@ -72,11 +81,7 @@ if (process.env.NODE_ENV === 'production') {
   });
 }
 
-// DB start listener
-db.once('open', () => {
-  console.log('⏳ [Server] DB open—starting listener');
-  app.listen(PORT, () => {
-    console.log(`🌍 Now listening on http://localhost:${PORT}`);
-  });
+// Start server regardless of DB open
+app.listen(PORT, () => {
+  console.log(`🌍 Now listening on http://localhost:${PORT}`);
 });
-
