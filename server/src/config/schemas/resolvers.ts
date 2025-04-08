@@ -76,7 +76,7 @@ export const resolvers = {
     
       try {
         const updatedUser = await User.findByIdAndUpdate(
-          context.user._id,
+          context.user.id,
           { $addToSet: { savedBooks: bookData } }, // prevents duplicates
           { new: true, runValidators: true }
         );
@@ -95,7 +95,7 @@ export const resolvers = {
   
       try {
         const updatedUser = await User.findByIdAndUpdate(
-          context.user._id,
+          context.user.id,
           { $pull: { savedBooks: { bookId } } },
           { new: true }
         );
