@@ -1,6 +1,7 @@
 import User from '../../models/User.js';
 import { AuthenticationError } from 'apollo-server-express';
 import { signToken } from '../../services/auth.js'; // correct path based on your setup
+import { BookInput } from '../../models/Book.js';
 
 export const resolvers = {
   Query: {
@@ -66,18 +67,21 @@ export const resolvers = {
       }
     },
   
-    saveBook: async (_: unknown, { bookData }: any, context: any) => {
+    saveBook: async (
+      _: unknown,
+      { bookData }: { bookData: BookInput },
+      context: any
+    ) => {
       if (!context.user) {
         throw new AuthenticationError('You need to be logged in!');
       }
     
-      console.log('📦 bookData received:', bookData);            // log the input
-      console.log('🔑 context.user received:', context.user);    // log the user
+      console.log('📦 bookData received:', bookData);
     
       try {
         const updatedUser = await User.findByIdAndUpdate(
-          context.user.id,
-          { $addToSet: { savedBooks: bookData } }, // prevents duplicates
+          context.user.id, // double check this matches your JWT structure!
+          { $addToSet: { savedBooks: bookData } },
           { new: true, runValidators: true }
         );
         return updatedUser;
@@ -86,7 +90,6 @@ export const resolvers = {
         throw new Error('Failed to save book');
       }
     },
-    
   
     removeBook: async (_: unknown, { bookId }: any, context: any) => {
       if (!context.user) {
