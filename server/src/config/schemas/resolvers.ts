@@ -36,36 +36,73 @@ export const resolvers = {
     addUser: async (_: unknown, { input }: any) => {
       try {
         const user = await User.create(input);
-        const token = signToken(user); // ✅ updated
+        const token = signToken(user);
         return { token, user };
       } catch (err) {
         console.error('Error in addUser:', err);
         throw new Error('Failed to create user');
       }
     },
-
+  
     login: async (_: unknown, { email, password }: any) => {
       try {
         const user = await User.findOne({ email });
-
+  
         if (!user) {
           throw new AuthenticationError('No user found with this email');
         }
-
+  
         const validPassword = await user.isCorrectPassword(password);
-
+  
         if (!validPassword) {
           throw new AuthenticationError('Incorrect credentials');
         }
-
-        const token = signToken(user); // ✅ updated
+  
+        const token = signToken(user);
         return { token, user };
       } catch (err) {
         console.error('Error in login:', err);
         throw new AuthenticationError('Login failed');
       }
     },
+  
+    saveBook: async (_: unknown, { bookData }: any, context: any) => {
+      if (!context.user) {
+        throw new AuthenticationError('You need to be logged in!');
+      }
+  
+      try {
+        const updatedUser = await User.findByIdAndUpdate(
+          context.user.id,
+          { $addToSet: { savedBooks: bookData } }, // prevents duplicates
+          { new: true, runValidators: true }
+        );
+        return updatedUser;
+      } catch (err) {
+        console.error('Error in saveBook:', err);
+        throw new Error('Failed to save book');
+      }
+    },
+  
+    removeBook: async (_: unknown, { bookId }: any, context: any) => {
+      if (!context.user) {
+        throw new AuthenticationError('You need to be logged in!');
+      }
+  
+      try {
+        const updatedUser = await User.findByIdAndUpdate(
+          context.user.id,
+          { $pull: { savedBooks: { bookId } } },
+          { new: true }
+        );
+        return updatedUser;
+      } catch (err) {
+        console.error('Error in removeBook:', err);
+        throw new Error('Failed to remove book');
+      }
+    }
   }
+  
 };
 
 export default resolvers;
