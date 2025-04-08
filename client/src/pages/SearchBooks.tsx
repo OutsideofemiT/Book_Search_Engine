@@ -60,8 +60,8 @@ const SearchBooks = () => {
         authors: book.volumeInfo.authors || ['No author to display'],
         title: book.volumeInfo.title,
         description: book.volumeInfo.description,
-        image: book.volumeInfo.imageLinks?.thumbnail || '',
-        link: book.volumeInfo.infoLink || '', // ✅ Add this line
+        image: book.volumeInfo.imageLinks?.thumbnail?.replace(/^http:/, 'https:') || '',
+        link: book.volumeInfo.infoLink?.replace(/^http:/, 'https:') || '',
       }));
       
 
@@ -75,39 +75,35 @@ const SearchBooks = () => {
   // Function to handle saving a book to our database
   const handleSaveBook = async (bookId: string) => {
     // Find the book in `searchedBooks` state by matching id
-    const bookToSave: Book = searchedBooks.find((book) => book.bookId === bookId)!;
-
+  const bookToSave: Book = searchedBooks.find((book) => book.bookId === bookId)!;
+  
     // Get token from Auth
-    const token = Auth.loggedIn() ? Auth.getToken() : null;
-    if (!token) {
-      return false;
-    }
-
+  const token = Auth.loggedIn() ? Auth.getToken() : null;
+    if (!token) return false;
+  
     try {
-      
-      console.log('📦 Sending to mutation:', bookToSave);
-      console.log('📦 Sending to mutation:', bookToSave);
-
-
-      // Execute the SAVE_BOOK mutation with the book data and token in context headers
-    const { data } = await saveBookMutation({
-      variables: { bookData: bookToSave },
-      context: {
-        headers: {
-          authorization: `Bearer ${token}`
-        }
-      }
-    });
-    console.log('📦 Sending to mutation:', bookToSave);
-
-    // Access the saved book ID from the mutation response
-    data.saveBook.bookId;
-      // Keep the logic for saving the book's ID to state.
-      setSavedBookIds([...savedBookIds, bookToSave.bookId]);
-
-      console.log('Book saved successfully:', bookToSave.bookId);
+      const { bookId, authors, title, description, image, link } = bookToSave;
+  
+      const bookInput = { bookId, authors, title, description, image, link };
+  
+      console.log('📦 Sending to mutation:', bookInput);
+  
+      // Execute the SAVE_BOOK mutation with only the necessary fields
+      await saveBookMutation({
+        variables: { bookData: bookInput },
+        context: {
+          headers: {
+            authorization: `Bearer ${token}`,
+          },
+        },
+      });
+  
+      // Update saved book IDs
+      setSavedBookIds([...savedBookIds, bookId]);
+  
+      console.log('✅ Book saved successfully:', bookId);
     } catch (err) {
-      console.error('Error saving book:', err);
+      console.error('❌ Error saving book:', err);
     }
   };
 
