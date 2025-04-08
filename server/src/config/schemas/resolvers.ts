@@ -79,7 +79,7 @@ export const resolvers = {
         );
         return updatedUser;
       } catch (err) {
-        console.error('Error in saveBook:', err);
+        console.error('Error in saveBook:', JSON.stringify(err, null, 2));
         throw new Error('Failed to save book');
       }
     },
