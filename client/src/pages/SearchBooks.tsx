@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import type { FormEvent } from 'react';
 import {
   Container,
@@ -12,7 +12,7 @@ import { useMutation, gql } from '@apollo/client';
 
 import Auth from '../utils/auth';
 import { searchGoogleBooks } from '../utils/API'; // removed saveBook since we'll use the mutation hook instead
-import { saveBookIds, getSavedBookIds } from '../utils/localStorage';
+import { getSavedBookIds } from '../utils/localStorage';
 import type { Book } from '../models/Book';
 import type { GoogleAPIBook } from '../models/GoogleAPIBook';
 
@@ -37,10 +37,6 @@ const SearchBooks = () => {
   // Use Apollo's useMutation hook for the SAVE_BOOK mutation
   const [saveBookMutation] = useMutation(SAVE_BOOK);
 
-  // Save savedBookIds list to localStorage on component unmount
-  useEffect(() => {
-    return () => saveBookIds(savedBookIds);
-  }, [savedBookIds]);
 
   // Method to search for books on form submit
   const handleFormSubmit = async (event: FormEvent<HTMLFormElement>) => {
