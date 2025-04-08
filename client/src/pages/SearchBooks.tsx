@@ -166,6 +166,17 @@ const SearchBooks = () => {
                       </Button>
                     )}
                   </Card.Body>
+                  {Auth.loggedIn() && (
+  <Button
+    disabled={savedBookIds?.some((savedBookId: string) => savedBookId === book.bookId)}
+    className='btn-block btn-info'
+    onClick={() => handleSaveBook(book.bookId)}>
+    {savedBookIds?.some((savedBookId: string) => savedBookId === book.bookId)
+      ? 'This book has already been saved!'
+      : 'Save this Book!'}
+  </Button>
+)}
+
                 </Card>
               </Col>
             );
