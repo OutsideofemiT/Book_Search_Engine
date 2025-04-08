@@ -122,7 +122,16 @@ This project was built as part of a full-stack bootcamp assignment to practice:
 
 **Carmen Wheeler**  
 _Developer • Debugger • Design Enthusiast_  
-💬 Let's build something cool.
+💬 Let's build something cool together.
+
+---
+
+## 📬 Contact
+
+Got questions or feedback? Reach out:
+
+- 📧 **Email**: carmenwh33l3r@gmail.com  
+- 🐙 **GitHub**: [@Oustsideofemit](https://github.com/Oustsideofemit)
 
 ---
 
