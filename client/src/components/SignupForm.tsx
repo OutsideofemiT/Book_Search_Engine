@@ -29,25 +29,33 @@ const SignupForm = ({ handleModalClose }: { handleModalClose: () => void }) => {
 
   const handleFormSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-
+  
     try {
       const { data } = await addUser({
         variables: { input: userFormData },
       });
+  
+      if (!data || !data.addUser || !data.addUser.token) {
+        console.error('Signup failed, response:', data);
+        setShowAlert(true);
+        return;
+      }
+  
       // Log in the user and close the modal
       Auth.login(data.addUser.token);
       handleModalClose();
     } catch (err) {
-      console.error(err);
+      console.error('GraphQL error:', err);
       setShowAlert(true);
     }
-
+  
     setUserFormData({
       username: '',
       email: '',
       password: '',
     });
   };
+  
 
   return (
     <>
