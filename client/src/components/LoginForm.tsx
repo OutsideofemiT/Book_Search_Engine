@@ -35,24 +35,32 @@ const LoginForm = ({ handleModalClose }: { handleModalClose: () => void }) => {
       event.preventDefault();
       event.stopPropagation();
     }
-
+  
     try {
       const { data } = await loginUser({
         variables: { email: userFormData.email, password: userFormData.password },
       });
+  
+      if (!data || !data.login || !data.login.token) {
+        console.error('Login failed, response:', data);
+        setShowAlert(true);
+        return;
+      }
+  
       // Log in the user and close the modal
       Auth.login(data.login.token);
       handleModalClose();
     } catch (err) {
-      console.error(err);
+      console.error('GraphQL error:', err);
       setShowAlert(true);
     }
-
+  
     setUserFormData({
       email: '',
       password: '',
     });
   };
+  
 
   return (
     <>
