@@ -84,7 +84,11 @@ const SearchBooks = () => {
     }
 
     try {
-      console.log('bookToSave payload:', bookToSave);
+      
+      console.log('📦 Sending to mutation:', bookToSave);
+      console.log('📦 Sending to mutation:', bookToSave);
+
+
       // Execute the SAVE_BOOK mutation with the book data and token in context headers
     const { data } = await saveBookMutation({
       variables: { bookData: bookToSave },
@@ -94,6 +98,7 @@ const SearchBooks = () => {
         }
       }
     });
+    console.log('📦 Sending to mutation:', bookToSave);
 
     // Access the saved book ID from the mutation response
     data.saveBook.bookId;
