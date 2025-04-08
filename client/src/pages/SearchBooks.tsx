@@ -8,23 +8,15 @@ import {
   Card,
   Row
 } from 'react-bootstrap';
-import { useMutation, gql } from '@apollo/client';
+import { useMutation } from '@apollo/client';
 
 import Auth from '../utils/auth';
 import { searchGoogleBooks } from '../utils/API'; // removed saveBook since we'll use the mutation hook instead
 import { getSavedBookIds } from '../utils/localStorage';
 import type { Book } from '../models/Book';
 import type { GoogleAPIBook } from '../models/GoogleAPIBook';
+import { SAVE_BOOK } from '../utils/mutations';
 
-// Define the SAVE_BOOK mutation
-// Adjust the mutation fields/variables according to your GraphQL schema.
-const SAVE_BOOK = gql`
-  mutation SaveBook($bookData: BookInput!) {
-    saveBook(bookData: $bookData) {
-      bookId
-    }
-  }
-`;
 
 const SearchBooks = () => {
   // State for holding returned Google API data
