@@ -1,5 +1,6 @@
 import User from '../../models/User.js';
 import { AuthenticationError } from 'apollo-server-express';
+import { signToken } from '../../services/auth.js'; // correct path based on your setup
 
 export const resolvers = {
   Query: {
@@ -32,7 +33,38 @@ export const resolvers = {
   },
 
   Mutation: {
-    // ... your existing login, addUser, saveBook, deleteBook
+    addUser: async (_: unknown, { input }: any) => {
+      try {
+        const user = await User.create(input);
+        const token = signToken(user); // ✅ updated
+        return { token, user };
+      } catch (err) {
+        console.error('Error in addUser:', err);
+        throw new Error('Failed to create user');
+      }
+    },
+
+    login: async (_: unknown, { email, password }: any) => {
+      try {
+        const user = await User.findOne({ email });
+
+        if (!user) {
+          throw new AuthenticationError('No user found with this email');
+        }
+
+        const validPassword = await user.isCorrectPassword(password);
+
+        if (!validPassword) {
+          throw new AuthenticationError('Incorrect credentials');
+        }
+
+        const token = signToken(user); // ✅ updated
+        return { token, user };
+      } catch (err) {
+        console.error('Error in login:', err);
+        throw new AuthenticationError('Login failed');
+      }
+    },
   }
 };
 
