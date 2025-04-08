@@ -70,7 +70,10 @@ export const resolvers = {
       if (!context.user) {
         throw new AuthenticationError('You need to be logged in!');
       }
-  
+    
+      console.log('📦 bookData received:', bookData);            // log the input
+      console.log('🔑 context.user received:', context.user);    // log the user
+    
       try {
         const updatedUser = await User.findByIdAndUpdate(
           context.user._id,
@@ -79,10 +82,11 @@ export const resolvers = {
         );
         return updatedUser;
       } catch (err) {
-        console.error('Error in saveBook:', JSON.stringify(err, null, 2));
+        console.error('❌ Error in saveBook:', JSON.stringify(err, null, 2));
         throw new Error('Failed to save book');
       }
     },
+    
   
     removeBook: async (_: unknown, { bookId }: any, context: any) => {
       if (!context.user) {
