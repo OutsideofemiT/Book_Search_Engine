@@ -101,6 +101,7 @@ JWT_SECRET=your_secret
 ---
 
 ## 🌐 Live Demo
+![Screenshot](Develop\client\public\BSE.jpg)
 
 **Frontend**: [https://book-search-engine-ygm6.onrender.com](https://book-search-engine-ygm6.onrender.com)
 
