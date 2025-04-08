@@ -6,12 +6,12 @@ export const resolvers = {
   Query: {
     // Get the currently logged-in user
     me: async (_: unknown, __: unknown, context: any) => {
-      if (!context.token) {
+      if (!context.user) {
         throw new AuthenticationError('Not logged in');
       }
-
+    
       try {
-        const user = await User.findById(context.token.id).select('-__v -password');
+        const user = await User.findById(context.user.id).select('-__v -password');
         return user;
       } catch (err) {
         console.error('Error fetching user in me query:', err);
