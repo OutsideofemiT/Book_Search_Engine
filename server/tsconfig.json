@@ -3,10 +3,9 @@
   "compilerOptions": {
     "rootDir": "src",
     "outDir": "dist",
-    "composite": true,
     "baseUrl": ".",
-    "moduleResolution": "node",      
-    "types": ["node"]               
+    "emitDeclarationOnly": true,
+    "declaration": true
   },
   "include": ["src/**/*"],
   "typeRoots": ["./node_modules/@types", "./src/types"]
