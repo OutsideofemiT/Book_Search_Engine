@@ -3,12 +3,9 @@
   "compilerOptions": {
     "rootDir": "src",
     "outDir": "dist",
-    "composite": true
+    "composite": true,
+    "baseUrl": "."
   },
-  "baseUrl": ".",
-  "paths": {
-    "@shared/*": ["../../shared/*"]
-  },
-  "include": ["src/**/*", "../../shared/**/*", "src/utils/auth.ts"],
+  "include": ["src/**/*"],
   "typeRoots": ["./node_modules/@types", "./src/types"]
 }
