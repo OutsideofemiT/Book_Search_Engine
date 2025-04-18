@@ -1,7 +1,7 @@
-import User from '../../models/User.js';
+import User from '../models/User.js';
 import { AuthenticationError } from 'apollo-server-express';
-import { signToken } from '../../services/auth.js'; // correct path based on your setup
-import { BookInput } from '../../models/Book.js';
+import { signToken } from '../utils/auth.js'; // correct path based on your setup
+import { BookInput } from '../models/Book.js';
 
 export const resolvers = {
   Query: {

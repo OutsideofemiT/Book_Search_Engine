@@ -8,6 +8,6 @@
   "paths": {
     "@shared/*": ["../../shared/*"]
   },
-  "include": ["src/**/*", "../../shared/**/*"],
+  "include": ["src/**/*", "../../shared/**/*", "src/utils/auth.ts"],
   "typeRoots": ["./node_modules/@types", "./src/types"]
 }
