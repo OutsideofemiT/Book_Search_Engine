@@ -12,10 +12,10 @@ interface UserPayload {
   email: string;
 }
 
-// ✅ Used by resolvers to create a signed JWT
+// ✅ Used to sign a new token on login/signup
 export function signToken(user: UserPayload): string {
   const payload = {
-    id: user._id,
+    _id: user._id,
     username: user.username,
     email: user.email,
   };
@@ -23,32 +23,35 @@ export function signToken(user: UserPayload): string {
   return jwt.sign({ data: payload }, secret, { expiresIn });
 }
 
-// ✅ Used in Apollo context to attach decoded user
-export const authenticateToken = ({ req }: any) => {
-  let token = req.body.token || req.query.token || req.headers.authorization;
+// ✅ Used in Apollo context function
+export function authMiddleware({ req }: { req: any }) {
+  let token = req.headers.authorization || '';
 
-  if (req.headers.authorization) {
-    token = token.split(' ').pop().trim();
+  if (token && token.startsWith('Bearer ')) {
+    token = token.split(' ').pop()?.trim() || '';
   }
 
-  if (!token) {
-    return req;
-  }
+  if (!token) return req;
 
   try {
-    const { data }: any = jwt.verify(token, secret, { maxAge: '2h' });
+    const { data } = jwt.verify(token, secret) as { data: any };
     req.user = data;
   } catch (err) {
-    console.log('Invalid token');
+    console.warn('❌ Invalid token');
   }
 
   return req;
-};
+}
 
-// ✅ Custom GraphQL error for auth issues
+// ✅ Custom Apollo-style error
 export class AuthenticationError extends GraphQLError {
   constructor(message: string) {
-    super(message, undefined, undefined, undefined, ['UNAUTHENTICATED']);
+    super(message, {
+      extensions: {
+        code: 'UNAUTHENTICATED',
+      },
+    });
     Object.defineProperty(this, 'name', { value: 'AuthenticationError' });
   }
 }
+

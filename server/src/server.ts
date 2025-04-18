@@ -3,7 +3,6 @@ import path from 'node:path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import type { RequestHandler } from 'express';
-import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import cors from 'cors';
 
@@ -27,13 +26,16 @@ import { expressMiddleware, ExpressContextFunctionArgument } from '@apollo/serve
 import typeDefs from './schemas/typeDefs.js';
 import resolvers from './schemas/resolvers.js';
 
+// 🔐 JWT Middleware
+import { authMiddleware } from './utils/auth.js';
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const app: Application = express();
 const PORT = process.env.PORT || 3001;
 
-// 🔐 CORS for frontend communication
+// 🛡️ CORS for frontend communication
 app.use(cors({
   origin: ['http://localhost:3000', 'https://book-search-engine-ygm6.onrender.com'],
   credentials: true,
@@ -42,7 +44,7 @@ app.use(cors({
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// Context type
+// Define Apollo context type
 type MyContext = {
   user?: any;
 };
@@ -58,28 +60,18 @@ app.use(
   '/graphql',
   expressMiddleware<MyContext>(apolloServer, {
     context: async ({ req }: ExpressContextFunctionArgument) => {
-      const authHeader = req.headers.authorization || '';
-      const token = authHeader.split(' ').pop();
-
-      if (!token) return { user: null };
-
-      try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY || '') as { data: any };
-        return { user: decoded.data };
-      } catch (err) {
-        console.error('❌ Invalid or expired token:', err);
-        return { user: null };
-      }
+      const modifiedReq = authMiddleware({ req });
+      return { user: modifiedReq.user };
     },
   }) as RequestHandler
 );
 
-// Optional: Health check
+// ✅ Health check route
 app.get('/', (_, res) => {
   res.send('Server is running.');
 });
 
-// Static assets for production
+// ✅ Serve React app in production
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname, '../../client/build')));
   app.get('*', (_, res) => {
@@ -90,4 +82,3 @@ if (process.env.NODE_ENV === 'production') {
 app.listen(PORT, () => {
   console.log(`🌍 Now listening on http://localhost:${PORT}`);
 });
-
