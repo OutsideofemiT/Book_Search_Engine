@@ -1,11 +1,14 @@
+// server/tsconfig.json
 {
   "extends": "../tsconfig.json",
   "compilerOptions": {
     "rootDir": "src",
     "outDir": "dist",
+    "composite": true,
     "baseUrl": ".",
-    "emitDeclarationOnly": true,
-    "declaration": true
+    
+    // 👇 override the root’s declaration‑only setting so JS is emitted
+    "emitDeclarationOnly": false
   },
   "include": ["src/**/*"],
   "typeRoots": ["./node_modules/@types", "./src/types"]
