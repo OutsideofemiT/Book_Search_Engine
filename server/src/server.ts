@@ -73,11 +73,12 @@ app.get('/', (_, res) => {
 
 // ✅ Serve React app in production
 if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, '../../client/build')));
+  app.use(express.static(path.join(__dirname, '../../client/dist')));
   app.get('*', (_, res) => {
-    res.sendFile(path.join(__dirname, '../../client/build', 'index.html'));
+    res.sendFile(path.join(__dirname, '../../client/dist', 'index.html'));
   });
 }
+
 
 app.listen(PORT, () => {
   console.log(`🌍 Now listening on http://localhost:${PORT}`);
