@@ -25,8 +25,10 @@ const SavedBooks = () => {
       await removeBookMutation({ variables: { bookId } });
       // Remove the book ID from localStorage upon success
       removeBookId(bookId);
+      return true;
     } catch (err) {
       console.error(err);
+      return false;
     }
   };
 
