@@ -1,53 +1,62 @@
-import { Schema, model } from 'mongoose';
+import { Schema, model, Document } from 'mongoose';
 import bcrypt from 'bcrypt';
-import { bookSchema } from './Book.js';
 
-const userSchema = new Schema(
+// Define the Book subdocument schema
+const bookSchema = new Schema(
   {
-    username: {
-      type: String,
-      required: true,
-      unique: true,
-      trim: true,
-    },
-    email: {
-      type: String,
-      required: true,
-      unique: true,
-      match: [/.+@.+\..+/, 'Must use a valid email address'],
-    },
-    password: {
-      type: String,
-      required: true,
-    },
-    savedBooks: [bookSchema],
+    bookId: { type: String, required: true },
+    authors: [String],
+    description: String,
+    title: { type: String, required: true },
+    image: String,
+    link: String,
   },
-  {
-    toJSON: {
-      virtuals: true,
-    },
-  }
+  { _id: false } // Prevent Mongo from auto-generating _id for subdocs
 );
 
-// Hash password before saving
-userSchema.pre('save', async function (next) {
-  if (this.isNew || this.isModified('password')) {
+// Extend the Mongoose Document with custom user fields and methods
+interface UserDocument extends Document {
+  username: string;
+  email: string;
+  password: string;
+  savedBooks: typeof bookSchema[];
+  isCorrectPassword(password: string): Promise<boolean>;
+}
+
+// User schema definition
+const userSchema = new Schema<UserDocument>({
+  username: {
+    type: String,
+    required: true,
+    unique: true,
+  },
+  email: {
+    type: String,
+    match: [/.+@.+\..+/, 'Must use a valid email address'],
+    required: true,
+    unique: true,
+  },
+  password: {
+    type: String,
+    required: true,
+  },
+  savedBooks: [bookSchema],
+});
+
+// Pre-save middleware to hash password if modified
+userSchema.pre<UserDocument>('save', async function (next) {
+  if (this.isModified('password')) {
     const saltRounds = 10;
     this.password = await bcrypt.hash(this.password, saltRounds);
   }
   next();
 });
 
-// Password validation method
+// Method to compare input password with hashed password
 userSchema.methods.isCorrectPassword = async function (password: string) {
   return bcrypt.compare(password, this.password);
 };
 
-// Virtual to count saved books
-userSchema.virtual('bookCount').get(function () {
-  return this.savedBooks.length;
-});
-
-const User = model('User', userSchema);
-
+// Export the User model
+const User = model<UserDocument>('User', userSchema);
 export default User;
