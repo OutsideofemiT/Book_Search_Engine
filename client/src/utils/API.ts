@@ -1,5 +1,5 @@
-import type { User } from '../models/User.js';
-import type { Book } from '../models/Book.js';
+import type { User } from '../types/User.js';
+import type { Book } from '../types/Book.js';
 
 // route to get logged in user's info (needs the token)
 export const getMe = (token: string) => {

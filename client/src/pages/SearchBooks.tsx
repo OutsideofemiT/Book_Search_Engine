@@ -13,8 +13,8 @@ import { useMutation } from '@apollo/client';
 import Auth from '../utils/auth';
 import { searchGoogleBooks } from '../utils/API'; // removed saveBook since we'll use the mutation hook instead
 import { getSavedBookIds } from '../utils/localStorage';
-import type { Book } from '../models/Book';
-import type { GoogleAPIBook } from '../models/GoogleAPIBook';
+import type { Book } from '../types/Book';
+import type { GoogleAPIBook } from '../types/GoogleAPIBook';
 import { SAVE_BOOK } from '../utils/mutations';
 
 
@@ -62,15 +62,16 @@ const SearchBooks = () => {
     } catch (err) {
       console.error(err);
     }
+    return undefined;
   };
 
   // Function to handle saving a book to our database
   const handleSaveBook = async (bookId: string) => {
     // Find the book in `searchedBooks` state by matching id
-  const bookToSave: Book = searchedBooks.find((book) => book.bookId === bookId)!;
+    const bookToSave: Book = searchedBooks.find((book) => book.bookId === bookId)!;
   
     // Get token from Auth
-  const token = Auth.loggedIn() ? Auth.getToken() : null;
+    const token = Auth.loggedIn() ? Auth.getToken() : null;
     if (!token) return false;
   
     try {
@@ -94,8 +95,10 @@ const SearchBooks = () => {
       setSavedBookIds([...savedBookIds, bookId]);
   
       console.log('✅ Book saved successfully:', bookId);
+      return true;
     } catch (err) {
       console.error('❌ Error saving book:', err);
+      return false;
     }
   };
 
