@@ -1,27 +1,11 @@
-import { Schema, type Document } from 'mongoose';
+import { Schema } from 'mongoose';
 
-export interface BookDocument extends Document {
-  bookId: string;
-  title: string;
-  authors: string[];
-  description: string;
-  image: string;
-  link: string;
-}
-export interface BookInput {
-  bookId: string;
-  authors: string[];
-  description?: string;
-  title: string;
-  image?: string;
-  link?: string;
-}
-
-// ... your other code (e.g., schema, model, etc.)
-
-
-// This is a subdocument schema, it won't become its own model but we'll use it as the schema for the User's `savedBooks` array in User.js
-const bookSchema = new Schema<BookDocument>({
+// Mongoose subdocument schema for savedBooks
+export const bookSchema = new Schema({
+  bookId: {
+    type: String,
+    required: true,
+  },
   authors: [
     {
       type: String,
@@ -29,10 +13,8 @@ const bookSchema = new Schema<BookDocument>({
   ],
   description: {
     type: String,
-  
   },
-  // saved book id from GoogleBooks
-  bookId: {
+  title: {
     type: String,
     required: true,
   },
@@ -42,10 +24,14 @@ const bookSchema = new Schema<BookDocument>({
   link: {
     type: String,
   },
-  title: {
-    type: String,
-    required: true,
-  },
 });
 
-export default bookSchema;
+// Optional: GraphQL-friendly TypeScript type for input use
+export type BookInput = {
+  bookId: string;
+  authors: string[];
+  description?: string;
+  title: string;
+  image?: string;
+  link?: string;
+};

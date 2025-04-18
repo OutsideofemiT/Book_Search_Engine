@@ -46,7 +46,7 @@ const typeDefs = `
   Auth type for returning a token and user info.
   """
   type Auth {
-    token: ID!
+    token: String!
     user: User
   }
 

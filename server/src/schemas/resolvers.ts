@@ -1,5 +1,5 @@
 import User from '../models/User.js';
-import { AuthenticationError } from 'apollo-server-express';
+import { AuthenticationError } from '../utils/auth.js';
 import { signToken } from '../utils/auth.js'; // correct path based on your setup
 import { BookInput } from '../models/Book.js';
 
@@ -12,7 +12,7 @@ export const resolvers = {
       }
     
       try {
-        const user = await User.findById(context.user.id).select('-__v -password');
+        const user = await User.findById(context.user._id).select('-__v -password');
         return user;
       } catch (err) {
         console.error('Error fetching user in me query:', err);
@@ -80,7 +80,7 @@ export const resolvers = {
     
       try {
         const updatedUser = await User.findByIdAndUpdate(
-          context.user.id, // double check this matches your JWT structure!
+          context.user._id, // double check this matches your JWT structure!
           { $addToSet: { savedBooks: bookData } },
           { new: true, runValidators: true }
         );
@@ -98,7 +98,7 @@ export const resolvers = {
   
       try {
         const updatedUser = await User.findByIdAndUpdate(
-          context.user.id,
+          context.user._id,
           { $pull: { savedBooks: { bookId } } },
           { new: true }
         );
