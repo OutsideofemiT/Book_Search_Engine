@@ -4,7 +4,9 @@
     "rootDir": "src",
     "outDir": "dist",
     "composite": true,
-    "baseUrl": "."
+    "baseUrl": ".",
+    "moduleResolution": "node",      // 🛠️ Ensures proper resolution for Node packages like readline
+    "types": ["node"]                // ✅ Enables Node core type definitions
   },
   "include": ["src/**/*"],
   "typeRoots": ["./node_modules/@types", "./src/types"]

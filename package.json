@@ -9,7 +9,6 @@
     "install": "cd server && npm i && cd ../client && npm i",
     "build": "cd server && npm run build && cd ../client && npm run build",
     "render-build": "npm install --include=dev && npm run build"
-
   },
   "keywords": [],
   "author": "",
@@ -19,6 +18,7 @@
     "@types/bcryptjs": "^2.4.6",
     "@types/cors": "^2.8.17",
     "@types/jsonwebtoken": "^9.0.9",
+    "@types/node": "^22.14.1",
     "concurrently": "^8.2.2"
   },
   "dependencies": {
@@ -33,7 +33,6 @@
     "tsconfig-paths": "^4.2.0"
   },
   "engines": {
-  "node": "20.x"
-}
-
+    "node": "20.x"
+  }
 }
