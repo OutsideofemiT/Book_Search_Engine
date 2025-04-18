@@ -15,7 +15,7 @@ const bookSchema = new Schema(
 );
 
 // Extend the Mongoose Document with custom user fields and methods
-interface UserDocument extends Document {
+export interface UserDocument extends Document {
   username: string;
   email: string;
   password: string;
