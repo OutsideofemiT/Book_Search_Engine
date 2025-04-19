@@ -36,8 +36,17 @@ const app: Application = express();
 const PORT = process.env.PORT || 3001;
 
 // 🛡️ CORS for frontend communication
+const rawOrigins = [
+  process.env.CLIENT_URL,        // e.g. http://localhost:5173
+  process.env.PRODUCTION_URL,    // e.g. https://book-search-engine-ygm6.onrender.com
+];
+// Filter out undefined and narrow to string[]
+const allowedOrigins = rawOrigins.filter((o): o is string => !!o);
+
+console.log('🚀 Allowed CORS origins:', allowedOrigins);
+
 app.use(cors({
-  origin: ['http://localhost:3000', 'https://book-search-engine-ygm6.onrender.com'],
+  origin: allowedOrigins,
   credentials: true,
 }));
 
@@ -60,8 +69,8 @@ app.use(
   '/graphql',
   expressMiddleware<MyContext>(apolloServer, {
     context: async ({ req }: ExpressContextFunctionArgument) => {
-      const modifiedReq = authMiddleware({ req });
-      return { user: modifiedReq.user };
+      const { user } = authMiddleware({ req });
+      return { user };
     },
   }) as RequestHandler
 );
@@ -78,7 +87,6 @@ if (process.env.NODE_ENV === 'production') {
     res.sendFile(path.join(__dirname, '../../client/dist', 'index.html'));
   });
 }
-
 
 app.listen(PORT, () => {
   console.log(`🌍 Now listening on http://localhost:${PORT}`);
