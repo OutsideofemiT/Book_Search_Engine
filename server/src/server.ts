@@ -35,14 +35,12 @@ const __dirname = dirname(__filename);
 const app: Application = express();
 const PORT = process.env.PORT || 3001;
 
-// 🛡️ CORS for frontend communication
+// 🛡️ Dynamic CORS for frontend communication
 const rawOrigins = [
   process.env.CLIENT_URL,        // e.g. http://localhost:5173
-  process.env.PRODUCTION_URL,    // e.g. https://book-search-engine-ygm6.onrender.com
+  process.env.PRODUCTION_URL,    // e.g. https://your‑render‑url.onrender.com
 ];
-// Filter out undefined and narrow to string[]
 const allowedOrigins = rawOrigins.filter((o): o is string => !!o);
-
 console.log('🚀 Allowed CORS origins:', allowedOrigins);
 
 app.use(cors({
@@ -75,18 +73,18 @@ app.use(
   }) as RequestHandler
 );
 
-// ✅ Health check route
-app.get('/', (_, res) => {
-  res.send('Server is running.');
-});
-
-// ✅ Serve React app in production
+// ✅ Serve React app in production (must be **before** any wildcard or health‑check)
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname, '../../client/dist')));
-  app.get('*', (_, res) => {
-    res.sendFile(path.join(__dirname, '../../client/dist', 'index.html'));
-  });
+  app.get('*', (_req, res) =>
+    res.sendFile(path.join(__dirname, '../../client/dist/index.html'))
+  );
 }
+
+// ✅ Health check route (for Render)
+app.get('/health', (_req, res) => {
+  res.send('Server is running.');
+});
 
 app.listen(PORT, () => {
   console.log(`🌍 Now listening on http://localhost:${PORT}`);
